@@ -1,32 +1,121 @@
-# Prerequisites
-*.d
+//=====================
+//Prog: Electronic monthly transfer
+//Name: 
+//Modified: 
+//=====================
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+#include<iostream>
+#include<iomanip>
+#include<string>
+#include<fstream>
 
-# Precompiled Headers
-*.gch
-*.pch
+using namespace std;
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+int main()
+{
+    //declares
+    string Name;
+    string xheader;
+    long int RoutingNumber, AccountNumber,Num,Customer_ID;
+    double Rate;
+    long int i = 0, sum_RoutingNumber = 0, sum_Rate = 0;
+    ifstream fin;
+    ofstream fout;
+    
+    //Open file
+    fin.open("data_records.txt");
+    fout.open("emt_out.txt");
+    
+    //Test if program runs
+    if (fin)
+        fout << "Processing the result\n" << endl;
+    else
+    {
+        fout << "Ido107 Error- file not found!" << endl;
+        fout << "Exitng program" << endl;
+        fout << endl;
+        
+        return 0;
+    }
+    
+    //Ignore header
+    getline(fin,xheader);
+    
+    //Job header
+    fout << "JOB $$$NAME = 194238456-01" << endl;
+    
+    //Bank header
+    fout << "101 10272016000019423845601WELLS FARGO Los Angeles" << endl;
+    
+    //Company's Header
+    fout << "1250APLHA CORP" << "\t\t\t" << "000019423845601INSURANCE PAYMENT" << endl;
+    
+    //Load data from the file
+    while (!fin.eof())
+    {
+        //Get name to ','
+        getline(fin, Name, ',');
+        
+        //Get routing number
+        fin >> RoutingNumber;
+       
+        //Ignore
+        fin.ignore(10,',');
+        
+        //Get account number
+        fin >> AccountNumber;
+        
+        //Ignore
+        fin.ignore(10,'$');
+        
+        //Get rate
+        fin >> Rate;
+        
+        //Ignore
+        fin.ignore(10,',');
+        
+        //Get customer ID
+        fin >> Customer_ID;
+        
+        //Ignore
+        fin.ignore(10,'-');
+        
+        //Get ID
+        fin >> Num;
+        
+        //Ignore
+        fin.ignore(10,',');
+        
+        //Sum of routing number & rate
+        sum_RoutingNumber = sum_RoutingNumber + RoutingNumber;
+        sum_Rate = sum_Rate + Rate;
+        
+        
+        //Output details
+        fout << left << "627"
+        << setw(8) << RoutingNumber
+        << setw(12) << AccountNumber
+        << " \t" << right
+        << setw(10) << setfill('0')
+        //remove the '.' between the amount
+        << (Rate * 100) << right
+        << Customer_ID  << "-"  << Num
+         << setw(2) << "  " << Name
+        << endl;
+        
+        
+        i++;
+    }
 
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+    //Error checking
+    fout << "1250" << setw(6) << setfill('0') << i << setw(16) << setfill('0')
+    << sum_RoutingNumber << setw(10) << setfill('0') << sum_Rate << "000000121250"
+    << endl;
+    
+    
+    //close files
+    fin.close();
+    fout.close();
+    cout << endl;
+    return 0;
+}
